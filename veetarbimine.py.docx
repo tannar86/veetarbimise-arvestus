@@ -1,0 +1,32 @@
+import streamlit as st
+import pandas as pd
+
+st.title("Veetarbimise arvestus nelja pere jaoks")
+
+st.header("Koguarvestus")
+total_water = st.number_input("Sisesta kogu kuu tarbitud vee kogus (m3)", min_value=0.0)
+total_bill = st.number_input("Sisesta koguarve summa (€)", min_value=0.0)
+
+st.header("Perede veenäidud")
+families = ["Pere 1", "Pere 2", "Pere 3", "Pere 4"]
+data = []
+
+for family in families:
+    st.subheader(f"{family}")
+    start_reading = st.number_input(f"{family} - Kuu alguse näit (m3)", min_value=0.0, key=f"{family}_start")
+    end_reading = st.number_input(f"{family} - Kuu lõpu näit (m3)", min_value=0.0, key=f"{family}_end")
+    consumption = end_reading - start_reading
+    data.append({
+        "Pere": family,
+        "Kuu alguse näit (m3)": start_reading,
+        "Kuu lõpu näit (m3)": end_reading,
+        "Tarbimine (m3)": consumption
+    })
+
+df = pd.DataFrame(data)
+if total_water > 0:
+    df["Protsent kogutarbimisest (%)"] = (df["Tarbimine (m3)"] / df["Tarbimine (m3)"].sum()) * 100
+    df["Arve osa (€)"] = (df["Protsent kogutarbimisest (%)"] / 100) * total_bill
+
+st.subheader("Arvutustulemused")
+st.dataframe(df)
